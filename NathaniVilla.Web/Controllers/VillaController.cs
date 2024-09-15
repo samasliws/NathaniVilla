@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NathaniVilla.Domain.Entities;
 using NathaniVilla.Infrastructure.Data;
 
 namespace NathaniVilla.Web.Controllers
@@ -22,6 +23,22 @@ namespace NathaniVilla.Web.Controllers
         public IActionResult Create()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Villa obj)
+        {
+            if(obj.Name == obj.Description) //custom validation
+            {
+                ModelState.AddModelError("Name", "The description cannot exactly match the Name.");
+            }
+            if (ModelState.IsValid)
+            {
+                _db.Villas.Add(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View();                        
         }
     }
 }
