@@ -28,7 +28,7 @@ namespace NathaniVilla.Web.Controllers
         [HttpPost]
         public IActionResult Create(Villa obj)
         {
-            if(obj.Name == obj.Description) //custom validation
+            if (obj.Name == obj.Description) //custom server-side validation
             {
                 ModelState.AddModelError("Name", "The description cannot exactly match the Name.");
             }
@@ -38,7 +38,30 @@ namespace NathaniVilla.Web.Controllers
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View();                        
+            return View();
+        }
+
+        public IActionResult Update(int villaId)
+        {
+            Villa? obj = _db.Villas.FirstOrDefault(u => u.Id == villaId);
+            if (obj == null)
+            {
+                return RedirectToAction("Error","Home");
+            }
+            return View(obj);
+        }
+
+        [HttpPost]
+        public IActionResult Update(Villa obj)
+        {
+            
+            if (ModelState.IsValid)
+            {
+                _db.Villas.Update(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View();
         }
     }
 }
