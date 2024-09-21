@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NathaniVilla.Domain\NathaniVilla.Domain.csproj" />
+    <ProjectReference Include="..\NathaniVilla.Application\NathaniVilla.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
