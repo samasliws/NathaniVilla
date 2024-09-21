@@ -1,4 +1,5 @@
 ﻿using NathaniVilla.Application.Common.Interfaces;
+using NathaniVilla.Domain.Entities;
 using NathaniVilla.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,13 @@ namespace NathaniVilla.Infrastructure.Repository
     {
         private readonly ApplicationDbContext _db;
         public IVillaRepository Villa { get; private set; }
+
+        public IVillaNumberRepository VillaNumber { get; private set; }
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             Villa = new VillaRepository(_db);
+            VillaNumber = new VillaNumberRepository(_db);
         }
 
         public void Save()
