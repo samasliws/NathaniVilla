@@ -1,5 +1,7 @@
-﻿using NathaniVilla.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Domain.Entities;
+using NathaniVilla.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,36 +11,19 @@ using System.Threading.Tasks;
 
 namespace NathaniVilla.Infrastructure.Repository
 {
-    public class VillaRepository : IVillaRepository
+    public class VillaRepository : Repository<Villa>, IVillaRepository
     {
-        public void Add(Villa entity)
+        #region : Generic Repo Constructor
+        private readonly ApplicationDbContext _db;
+        public VillaRepository(ApplicationDbContext db) : base (db)
         {
-            throw new NotImplementedException();
+            _db = db;
         }
-
-        public void Delete(Villa entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Villa> Get(Expression<Func<Villa, bool>> filter, string? includeProperties = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Villa> GetAll(Expression<Func<Villa, bool>>? filter = null, string? includeProperties = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
-
+        #endregion
+        
         public void Update(Villa entity)
         {
-            throw new NotImplementedException();
+            _db.Villas.Update(entity);
         }
     }
 }

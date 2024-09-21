@@ -8,13 +8,8 @@ using System.Threading.Tasks;
 
 namespace NathaniVilla.Application.Common.Interfaces
 {
-    public interface IVillaRepository
-    {
-        IEnumerable<Villa> GetAll(Expression<Func<Villa, bool>>? filter = null, string? includeProperties = null);
-        IEnumerable<Villa> Get(Expression<Func<Villa, bool>> filter, string? includeProperties = null);
-        void Add(Villa entity);
-        void Update(Villa entity);
-        void Delete(Villa entity);
-        void Save();
+    public interface IVillaRepository : IRepository<Villa>
+    {       
+        void Update(Villa entity);               
     }
 }
