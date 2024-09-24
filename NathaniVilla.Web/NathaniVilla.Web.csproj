@@ -18,4 +18,8 @@
     <ProjectReference Include="..\NathaniVilla.Infrastructure\NathaniVilla.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\VillaImage\" />
+  </ItemGroup>
+
 </Project>

@@ -10,9 +10,11 @@ namespace NathaniVilla.Web.Controllers
     {
         #region Villa Repo Constructors
         private readonly IUnitOfWork _unitOfWork;
-        public VillaController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public VillaController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
         #endregion
 
@@ -37,6 +39,22 @@ namespace NathaniVilla.Web.Controllers
             }
             if (ModelState.IsValid)
             {
+                if (obj.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"Images\VillaImage");
+
+                    using var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create);
+
+                    obj.Image.CopyTo(fileStream);
+
+                    obj.ImageUrl = @"\Images\VillaImage\" + fileName;
+                }
+                else
+                {
+                    obj.ImageUrl = "https://placehold.co/600x400";
+                }
+                obj.CreatedDate = DateTime.Now;
                 _unitOfWork.Villa.Add(obj);
                 _unitOfWork.Save();
                 TempData["success"] = "The villa has been created successfully.";
@@ -59,8 +77,31 @@ namespace NathaniVilla.Web.Controllers
         public IActionResult Update(Villa obj)
         {
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && obj.Id > 0)
             {
+
+                if (obj.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"Images\VillaImage");
+
+                    //remove old image if exists
+                    if (!string.IsNullOrEmpty(obj.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }                    
+                    using var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create);
+                    obj.Image.CopyTo(fileStream);
+
+                    obj.ImageUrl = @"\Images\VillaImage\" + fileName;
+                }
+
+                obj.UpdatedDate = DateTime.Now;
                 _unitOfWork.Villa.Update(obj);
                 _unitOfWork.Save();
                 TempData["success"] = "The villa has been updated successfully.";
@@ -86,6 +127,16 @@ namespace NathaniVilla.Web.Controllers
 
             if (objFromDb is not null)
             {
+                //remove old image if exists
+                if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, objFromDb.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
                 _unitOfWork.Villa.Delete(objFromDb);
                 _unitOfWork.Save();
                 TempData["success"] = "The villa has been deleted successfully.";
