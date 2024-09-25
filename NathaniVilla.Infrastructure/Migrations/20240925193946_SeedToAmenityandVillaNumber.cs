@@ -7,7 +7,7 @@
 namespace NathaniVilla.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class addVillaNumber : Migration
+    public partial class SeedToAmenityandVillaNumber : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,6 +20,27 @@ namespace NathaniVilla.Infrastructure.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
+
+            migrationBuilder.CreateTable(
+                name: "Amenities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VillaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Amenities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Amenities_Villas_VillaId",
+                        column: x => x.VillaId,
+                        principalTable: "Villas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "VillaNumbers",
@@ -41,21 +62,44 @@ namespace NathaniVilla.Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Amenities",
+                columns: new[] { "Id", "Description", "Name", "VillaId" },
+                values: new object[,]
+                {
+                    { 1, null, "Private Pool", 1 },
+                    { 2, null, "Microwave", 1 },
+                    { 3, null, "Private Balcony", 1 },
+                    { 4, null, "1 king bed and 1 sofa bed", 1 },
+                    { 5, null, "Private Plunge Pool", 2 },
+                    { 6, null, "Microwave and Mini Refrigerator", 2 },
+                    { 7, null, "Private Balcony", 2 },
+                    { 8, null, "king bed or 2 double beds", 2 },
+                    { 9, null, "Private Pool", 3 },
+                    { 10, null, "Jacuzzi", 3 },
+                    { 11, null, "Private Balcony", 3 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "VillaNumbers",
                 columns: new[] { "Villa_Number", "SpecialDetails", "VillaId" },
                 values: new object[,]
                 {
-                    { 101, null, 2 },
+                    { 101, null, 1 },
                     { 102, null, 2 },
                     { 103, null, 2 },
                     { 104, null, 2 },
-                    { 201, null, 4 },
-                    { 202, null, 4 },
-                    { 203, null, 5 },
-                    { 301, null, 1002 },
-                    { 302, null, 1002 },
-                    { 303, null, 1002 }
+                    { 201, null, 3 },
+                    { 202, null, 3 },
+                    { 203, null, 3 },
+                    { 301, null, 2 },
+                    { 302, null, 1 },
+                    { 303, null, 2 }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Amenities_VillaId",
+                table: "Amenities",
+                column: "VillaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VillaNumbers_VillaId",
@@ -66,6 +110,9 @@ namespace NathaniVilla.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Amenities");
+
             migrationBuilder.DropTable(
                 name: "VillaNumbers");
 

@@ -22,8 +22,4 @@
     <ProjectReference Include="..\NathaniVilla.Application\NathaniVilla.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>
