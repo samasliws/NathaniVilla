@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NathaniVilla.Application.Common.Interfaces;
+using NathaniVilla.Application.Common.Utility;
 using NathaniVilla.Domain.Entities;
 using NathaniVilla.Web.ViewModels;
 
 namespace NathaniVilla.Web.Controllers
 {
+    [Authorize(Roles = SD.Role_Admin)]
     public class AmenityController : Controller
     {
         #region Amenity Repo Constructors

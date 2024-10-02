@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Domain.Entities;
 using NathaniVilla.Infrastructure.Data;
 
 namespace NathaniVilla.Web.Controllers
 {
-
+    [Authorize]
     public class VillaController : Controller
     {
         #region Villa Repo Constructors
