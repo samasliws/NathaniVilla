@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NathaniVilla.Application.Common.Interfaces;
+using NathaniVilla.Application.Common.Utility;
 using NathaniVilla.Domain.Entities;
+using System.Security.Claims;
 
 namespace NathaniVilla.Web.Controllers
 {
@@ -11,9 +14,14 @@ namespace NathaniVilla.Web.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-
+        [Authorize]
         public IActionResult FinalizeBooking(int villaId, DateOnly checkInDate, int nights)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            ApplicationUser user = _unitOfWork.User.Get(u => u.Id == userId);
+
             Booking booking = new()
             {
                 VillaId = villaId,
@@ -21,9 +29,34 @@ namespace NathaniVilla.Web.Controllers
                 CheckInDate = checkInDate,
                 Nights = nights,
                 CheckOutDate = checkInDate.AddDays(nights),
+                UserId = userId,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.PhoneNumber
             };
             booking.TotalCost = booking.Villa.Price * nights;
             return View(booking);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult FinalizeBooking(Booking booking)
+        {
+            var villa = _unitOfWork.Villa.Get(u => u.Id == booking.VillaId);
+            booking.TotalCost = villa.Price * booking.Nights;
+
+            booking.Status = SD.StatusPending;
+            booking.BookingDate = DateTime.Now;
+
+            _unitOfWork.Booking.Add(booking);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
+        }
+
+        [Authorize]
+        public IActionResult BookingConfirmation(int bookingId)
+        {
+            return View(bookingId);
         }
     }
 }
