@@ -4,6 +4,7 @@ using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Domain.Entities;
 using NathaniVilla.Infrastructure.Data;
 using NathaniVilla.Infrastructure.Repository;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ builder.Services.Configure<IdentityOptions>(option =>
 //adding services for repository operation
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
