@@ -120,11 +120,19 @@ namespace NathaniVilla.Web.Controllers
             return View(bookingId);
         }
 
-        #region API Calls
+        [Authorize]
+        public IActionResult BookingDetails(int bookingId)
+        {
+            Booking bookingFromDb = _unitOfWork.Booking.Get(u => u.Id == bookingId,
+                includeProperties: "User,Villa");
 
+            return View(bookingFromDb);
+        }
+
+        #region API Calls
         [HttpGet]
         [Authorize]
-        public IActionResult GetAll()
+        public IActionResult GetAll(string status)
         {
             IEnumerable<Booking> objBookings;
 
@@ -139,6 +147,10 @@ namespace NathaniVilla.Web.Controllers
 
                 objBookings = _unitOfWork.Booking.
                     GetAll(u=>u.UserId == userId, includeProperties: "User,Villa");
+            }
+            if (!string.IsNullOrEmpty(status))
+            {
+
             }
             return Json(new { data = objBookings });
         }
