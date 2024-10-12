@@ -12,13 +12,13 @@ function loadDataTable(status) {
             url: '/booking/getall?status=' + status 
         },
         "columns": [
-            { data: 'id', "width": "5%" },
-            { data: 'name', "width": "15%" },
+            { data: 'id', "width": "2%" },
+            { data: 'name', "width": "13%" },
             { data: 'phone', "width": "10%" },
-            { data: 'email', "width": "15%" },
+            { data: 'email', "width": "13%" },
             { data: 'status', "width": "10%" },
             { data: 'checkInDate', "width": "10%" },
-            { data: 'nights', "width": "10%" },
+            { data: 'nights', "width": "2%" },
             { data: 'totalCost', render: $.fn.dataTable.render.number(',','.',2) , "width": "10%" },
             {
                 data: 'id',
