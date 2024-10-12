@@ -59,6 +59,24 @@ namespace NathaniVilla.Web.Controllers
             booking.Status = SD.StatusPending;
             booking.BookingDate = DateTime.Now;
 
+            var villaNumberList = _unitOfWork.VillaNumber.GetAll().ToList();
+            var bookedVillas = _unitOfWork.Booking.GetAll(u => u.Status == SD.StatusApproved ||
+            u.Status == SD.StatusCheckedIn).ToList();
+
+            int roomAvailable = SD.VillaRoomsAvailable_Count
+                (villa.Id, villaNumberList, booking.CheckInDate, booking.Nights, bookedVillas);
+
+            if(roomAvailable == 0)
+            {
+                TempData["error"] = "Room has been sold out!";
+                //no room available
+                return RedirectToAction(nameof(FinalizeBooking), new
+                {
+                    villaId = booking.VillaId,
+                    checkInDate = booking.CheckInDate,
+                    nights = booking.Nights
+                });
+            }
             _unitOfWork.Booking.Add(booking);
             _unitOfWork.Save();
 
@@ -153,6 +171,38 @@ namespace NathaniVilla.Web.Controllers
                 }
             }
             return availableVillaNumbers;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CheckIn(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCheckedIn, booking.VillaNumber);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking Updated Successfully.";
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CheckOut(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCompleted, booking.VillaNumber);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking Completed Successfully.";
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CancelBooking(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCancelled, 0);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking Cancelled Successfully.";
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
         #region API Calls
