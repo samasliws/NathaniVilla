@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/spinner.css" />
     <link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="~/css/apexcharts.css" />
 </head>
 <body>
     <header>
@@ -42,7 +43,12 @@
                                 <span>Dashboard</span>
                             </a>
                         </li>
-                         <li class="nav-item">
+                        <li>
+                            <div class="text-muted small fw-bold text-uppercase px-3 mt-2">
+                                Content Management
+                            </div>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-controller="Villa" asp-action="Index">
                                 <span class="me-2"><i class="bi bi-house-door"></i></span>
                                 <span>Villa</span>
@@ -66,11 +72,7 @@
                                 <span>Booking</span>
                             </a>
                         </li>
-                        <li>
-                            <div class="text-muted small fw-bold text-uppercase px-3 mt-2">
-                                Content Management
-                            </div>
-                        </li>                      
+                                         
                     </ul>
                 </div>
             </nav>
@@ -95,6 +97,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/jquery.unobtrusive-ajax.min.js"></script>
     <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/js/apexcharts.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
