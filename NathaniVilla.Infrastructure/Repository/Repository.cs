@@ -35,9 +35,18 @@ namespace NathaniVilla.Infrastructure.Repository
             dbSet.Remove(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> query = _db.Set<T>();
+            IQueryable<T> query;            
+            if (tracked)
+            {
+                query = dbSet;
+            }
+            else
+            {
+                query = dbSet.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -54,9 +63,18 @@ namespace NathaniVilla.Infrastructure.Repository
             return query.FirstOrDefault();
         }
         
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> query = _db.Set<T>();
+            IQueryable<T> query;
+            if (tracked)
+            {
+                query = dbSet;
+            }
+            else
+            {
+                query = dbSet.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
