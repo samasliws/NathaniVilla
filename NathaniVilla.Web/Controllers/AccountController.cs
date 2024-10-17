@@ -48,13 +48,7 @@ namespace NathaniVilla.Web.Controllers
 
         public IActionResult Register(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
-
-            if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
-            {
-                _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).Wait();
-                _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer)).Wait();
-            }
+            returnUrl ??= Url.Content("~/");            
 
             RegisterVM registerVM = new()
             {
