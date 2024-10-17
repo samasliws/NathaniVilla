@@ -41,15 +41,15 @@ namespace NathaniVilla.Infrastructure.Data
 
                     _userManager.CreateAsync(new ApplicationUser
                     {
-                        UserName = "admin@sam.com",
-                        Email = "admin@sam.com",
+                        UserName = "admin@samdotnet.com",
+                        Email = "admin@samdotnet.com",
                         Name = "Samsuddin Asliwala",
-                        NormalizedUserName = "ADMIN@SAM.COM",
-                        NormalizedEmail = "ADMIN@SAM.COM",
+                        NormalizedUserName = "ADMIN@SAMDOTNET.COM",
+                        NormalizedEmail = "ADMIN@SAMDOTNET.COM",
                         PhoneNumber = "8320551924",
                     }, "Sam@0108896").GetAwaiter().GetResult();
 
-                    ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@sam.com");
+                    ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@samdotnet.com");
                     _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
                 }                
             }

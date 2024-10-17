@@ -1,5 +1,4 @@
-﻿using AspNetCore;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Application.Common.Utility;
 using NathaniVilla.Application.Services.Implementation;
