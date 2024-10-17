@@ -8,6 +8,7 @@ using Stripe.Checkout;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocIORenderer;
+using Syncfusion.Pdf;
 using System.Drawing;
 using System.Reflection.Metadata;
 using System.Security.Claims;
@@ -168,7 +169,7 @@ namespace NathaniVilla.Web.Controllers
         #region Generate Invoice in Word, PDF format
         [HttpPost]
         [Authorize]
-        public IActionResult GenerateInvoice(int id)
+        public IActionResult GenerateInvoice(int id, string downloadType)
         {
             string basePath = _webHostEnvironment.WebRootPath;
 
@@ -227,7 +228,9 @@ namespace NathaniVilla.Web.Controllers
             table.TableFormat.Paddings.Bottom = 7f;
             table.TableFormat.Borders.Horizontal.LineWidth = 1f;
 
-            table.ResetCells(2, 4);
+            int rows = bookingFromDb.VillaNumber > 0 ? 3 : 2;
+            table.ResetCells(rows, 4);
+
             WTableRow row0 = table.Rows[0];
 
             row0.Cells[0].AddParagraph().AppendText("NIGHTS");
@@ -238,7 +241,7 @@ namespace NathaniVilla.Web.Controllers
             row0.Cells[3].AddParagraph().AppendText("TOTAL");
             row0.Cells[3].Width = 80;
 
-            WTableRow roW1 = table.Rows[0];
+            WTableRow roW1 = table.Rows[1];
 
             roW1.Cells[0].AddParagraph().AppendText(bookingFromDb.Nights.ToString());
             roW1.Cells[0].Width = 80;
@@ -247,6 +250,15 @@ namespace NathaniVilla.Web.Controllers
             roW1.Cells[2].AddParagraph().AppendText((bookingFromDb.TotalCost / bookingFromDb.Nights).ToString("c"));
             roW1.Cells[3].AddParagraph().AppendText(bookingFromDb.TotalCost.ToString("c"));
             roW1.Cells[3].Width = 80;
+
+            if(bookingFromDb.VillaNumber > 0)
+            {
+                WTableRow roW2 = table.Rows[2];
+                roW2.Cells[0].Width = 80;
+                roW2.Cells[1].AddParagraph().AppendText("Villa Number - " + bookingFromDb.VillaNumber.ToString());
+                roW2.Cells[1].Width = 220;                
+                roW2.Cells[3].Width = 80;
+            }
 
             WTableStyle tableStyle = document.AddTableStyle("CustomStyle") as WTableStyle;
             tableStyle.TableProperties.RowStripe = 1;
@@ -269,12 +281,22 @@ namespace NathaniVilla.Web.Controllers
             document.Replace("<ADDTABLEHERE>", bodyPart, false, false);
 
             using DocIORenderer renderer = new();
-
             MemoryStream stream = new();
-            document.Save(stream, FormatType.Docx);
-            stream.Position = 0;
+            if (downloadType == "word")
+            {                
+                document.Save(stream, FormatType.Docx);
+                stream.Position = 0;
 
-            return File(stream, "application/docx", "BookingDetails.docx");
+                return File(stream, "application/docx", "BookingDetails.docx");
+            }
+            else
+            {
+                PdfDocument pdfDocument = renderer.ConvertToPDF(document);
+                pdfDocument.Save(stream);
+                stream.Position = 0;
+
+                return File(stream, "application/pdf", "BookingDetails.pdf");
+            }           
         }
 
         #endregion
