@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NathaniVilla.Application\NathaniVilla.Application.csproj" />
+    <ProjectReference Include="..\NathaniVilla.Domain\NathaniVilla.Domain.csproj" />
     <ProjectReference Include="..\NathaniVilla.Infrastructure\NathaniVilla.Infrastructure.csproj" />
   </ItemGroup>
 
