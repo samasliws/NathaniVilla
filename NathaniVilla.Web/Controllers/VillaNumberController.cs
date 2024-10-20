@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NathaniVilla.Application.Common.Interfaces;
+using NathaniVilla.Application.Services.Interface;
 using NathaniVilla.Domain.Entities;
 using NathaniVilla.Infrastructure.Data;
 using NathaniVilla.Web.ViewModels;
@@ -12,17 +13,19 @@ namespace NathaniVilla.Web.Controllers
     public class VillaNumberController : Controller
     {
         #region VillaNumber Repo Constructors
-        private readonly IUnitOfWork _unitOfWork;
-        public VillaNumberController(IUnitOfWork unitOfWork)
+        private readonly IVillaNumberService _villaNumberService;
+        private readonly IVillaService _villaService;
+        public VillaNumberController(IVillaNumberService villaNumberService, IVillaService villaService)
         {
-            _unitOfWork = unitOfWork;
+            _villaNumberService = villaNumberService;
+            _villaService = villaService;
         }
         #endregion
 
         #region CRUD Operation - Villa Number :: Samsuddin Asliwala
         public IActionResult Index()
         {
-            var villaNumbers = _unitOfWork.VillaNumber.GetAll(includeProperties: "Villa"); 
+            var villaNumbers = _villaNumberService.GetAllVillaNumbers(); 
             return View(villaNumbers);
         }
 
@@ -30,7 +33,7 @@ namespace NathaniVilla.Web.Controllers
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
@@ -43,12 +46,12 @@ namespace NathaniVilla.Web.Controllers
         public IActionResult Create(VillaNumberVM obj)
         {
             //ModelState.Remove("Villa");
-            bool isRoomNumberExist = _unitOfWork.VillaNumber.Any(u => u.Villa_Number == obj.VillaNumber.Villa_Number);            
+
+            bool isRoomNumberExist = _villaNumberService.CheckVillaNumberExists(obj.VillaNumber.Villa_Number);
 
             if (ModelState.IsValid && !isRoomNumberExist)
             {
-                _unitOfWork.VillaNumber.Add(obj.VillaNumber);
-                _unitOfWork.Save();
+                _villaNumberService.CreateVillaNumber(obj.VillaNumber);
                 TempData["success"] = "The villa Number has been created successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -56,7 +59,7 @@ namespace NathaniVilla.Web.Controllers
             {
                 TempData["error"] = "The villa Number already exists.";
             }
-            obj.VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+            obj.VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -68,12 +71,12 @@ namespace NathaniVilla.Web.Controllers
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                VillaNumber = _unitOfWork.VillaNumber.Get(u => u.Villa_Number == villaNumberId)
+                VillaNumber = _villaNumberService.GetVillaNumberById(villaNumberId)
             };
             if (villaNumberVM.VillaNumber == null)
             {
@@ -87,12 +90,12 @@ namespace NathaniVilla.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.VillaNumber.Update(villaNumberVM.VillaNumber);
-                _unitOfWork.Save();
+                _villaNumberService.UpdateVillaNumber(villaNumberVM.VillaNumber);
                 TempData["success"] = "The villa Number has been updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            villaNumberVM.VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+
+            villaNumberVM.VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -104,12 +107,12 @@ namespace NathaniVilla.Web.Controllers
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                VillaNumber = _unitOfWork.VillaNumber.Get(u => u.Villa_Number == villaNumberId)
+                VillaNumber = _villaNumberService.GetVillaNumberById(villaNumberId)
             };
 
 
@@ -123,12 +126,11 @@ namespace NathaniVilla.Web.Controllers
         [HttpPost]
         public IActionResult Delete(VillaNumberVM villaNumberVM)
         {
-            VillaNumber? objFromDb = _unitOfWork.VillaNumber.Get(u => u.Villa_Number == villaNumberVM.VillaNumber.Villa_Number);
+            VillaNumber? objFromDb = _villaNumberService.GetVillaNumberById(villaNumberVM.VillaNumber.Villa_Number);
 
             if (objFromDb is not null)
             {
-                _unitOfWork.VillaNumber.Delete(objFromDb);
-                _unitOfWork.Save();
+                _villaNumberService.DeleteVillaNumber(objFromDb.Villa_Number);
                 TempData["success"] = "The villa number has been deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }

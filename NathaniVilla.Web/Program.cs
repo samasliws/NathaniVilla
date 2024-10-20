@@ -34,6 +34,11 @@ builder.Services.Configure<IdentityOptions>(option =>
 //adding services for repository operation
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IVillaService, VillaService>();
+builder.Services.AddScoped<IVillaNumberService, VillaNumberService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 var app = builder.Build();

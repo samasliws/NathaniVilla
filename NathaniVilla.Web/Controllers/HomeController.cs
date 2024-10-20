@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Application.Common.Utility;
+using NathaniVilla.Application.Services.Interface;
 using NathaniVilla.Web.Models;
 using NathaniVilla.Web.ViewModels;
 using Syncfusion.Presentation;
@@ -11,11 +12,11 @@ namespace NathaniVilla.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IVillaService _villaService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public HomeController(IVillaService villaService, IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork;
+            _villaService = villaService;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -23,35 +24,21 @@ namespace NathaniVilla.Web.Controllers
         {
             HomeVM homeVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity"),
+                VillaList = _villaService.GetAllVillas(),
                 Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
             };
             return View(homeVM);
         }
 
-        [HttpPost]       
+        [HttpPost]
         public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
-            //Thread.Sleep(2000);
-            var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").ToList();
-
-            var villaNumberList = _unitOfWork.VillaNumber.GetAll().ToList();
-            var bookedVillas = _unitOfWork.Booking.GetAll(u => u.Status == SD.StatusApproved ||
-            u.Status == SD.StatusCheckedIn).ToList();
-
-
-            foreach (var villa in villaList)
-            {
-                int roomAvailable = SD.VillaRoomsAvailable_Count
-                    (villa.Id, villaNumberList, checkInDate, nights, bookedVillas);
-
-                villa.IsAvailable = roomAvailable > 0 ? true : false;
-            }
+            //Thread.Sleep(2000);            
             HomeVM homeVM = new()
             {
                 CheckInDate = checkInDate,
-                VillaList = villaList,
+                VillaList = _villaService.GetVillasAvailabilityByDate(nights, checkInDate),
                 Nights = nights
             };
 
@@ -60,7 +47,7 @@ namespace NathaniVilla.Web.Controllers
         [HttpPost]
         public IActionResult GeneratePPTExport(int id)
         {
-            var villa = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").FirstOrDefault(x => x.Id == id);
+            var villa = _villaService.GetVillaById(id);
             if (villa is null)
             {
                 return RedirectToAction(nameof(Error));
@@ -138,7 +125,7 @@ namespace NathaniVilla.Web.Controllers
                 }
                 slide.Shapes.Remove(shape);
                 using MemoryStream imageStream = new(imageData);
-                IPicture newPicture = slide.Pictures.AddPicture(imageStream, 60, 120, 300, 200);                
+                IPicture newPicture = slide.Pictures.AddPicture(imageStream, 60, 120, 300, 200);
             }
 
             MemoryStream memoryStream = new();

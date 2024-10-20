@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NathaniVilla.Application.Common.Interfaces;
 using NathaniVilla.Application.Common.Utility;
+using NathaniVilla.Application.Services.Interface;
 using NathaniVilla.Domain.Entities;
 using NathaniVilla.Web.ViewModels;
 
@@ -11,18 +12,18 @@ namespace NathaniVilla.Web.Controllers
     [Authorize(Roles = SD.Role_Admin)]
     public class AmenityController : Controller
     {
-        #region Amenity Repo Constructors
-        private readonly IUnitOfWork _unitOfWork;
-        public AmenityController(IUnitOfWork unitOfWork)
+        private readonly IAmenityService _amenityService;
+        private readonly IVillaService _villaService;
+        public AmenityController(IAmenityService amenityService, IVillaService villaService)
         {
-            _unitOfWork = unitOfWork;
+            _amenityService = amenityService;
+            _villaService = villaService;
         }
-        #endregion
 
         #region CRUD Operation - Amenity
         public IActionResult Index()
         {
-            var amenities = _unitOfWork.Amenity.GetAll(includeProperties: "Villa");
+            var amenities = _amenityService.GetAllAmenities();
             return View(amenities);
         }
 
@@ -30,7 +31,7 @@ namespace NathaniVilla.Web.Controllers
         {
             AmenityVM amenityVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
@@ -45,13 +46,12 @@ namespace NathaniVilla.Web.Controllers
             
             if (ModelState.IsValid)
             {
-                _unitOfWork.Amenity.Add(obj.Amenity);
-                _unitOfWork.Save();
+                _amenityService.CreateAmenity(obj.Amenity);
                 TempData["success"] = "The amenity has been created successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            
-            obj.VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+
+            obj.VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -63,12 +63,12 @@ namespace NathaniVilla.Web.Controllers
         {
             AmenityVM amenityVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                Amenity = _unitOfWork.Amenity.Get(u => u.Id == amenityId)
+                Amenity = _amenityService.GetAmenityById(amenityId)              
             };
             if (amenityVM.Amenity == null)
             {
@@ -82,12 +82,11 @@ namespace NathaniVilla.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Amenity.Update(amenityVM.Amenity);
-                _unitOfWork.Save();
+                _amenityService.UpdateAmenity(amenityVM.Amenity);
                 TempData["success"] = "The amenity has been updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            amenityVM.VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+            amenityVM.VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -99,14 +98,13 @@ namespace NathaniVilla.Web.Controllers
         {
             AmenityVM amenityVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
-                }),
-                Amenity = _unitOfWork.Amenity.Get(u => u.Id == amenityId)
+                }),                
+                  Amenity = _amenityService.GetAmenityById(amenityId)                 
             };
-
 
             if (amenityVM.Amenity == null)
             {
@@ -118,13 +116,11 @@ namespace NathaniVilla.Web.Controllers
         [HttpPost]
         public IActionResult Delete(AmenityVM amenityVM)
         {
-            Amenity? objFromDb = _unitOfWork.Amenity
-                .Get(u => u.Id == amenityVM.Amenity.Id);
 
+            Amenity? objFromDb = _amenityService.GetAmenityById(amenityVM.Amenity.Id);
             if (objFromDb is not null)
             {
-                _unitOfWork.Amenity.Delete(objFromDb);
-                _unitOfWork.Save();
+                _amenityService.DeleteAmenity(objFromDb.Id);
                 TempData["success"] = "The amenity has been deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
