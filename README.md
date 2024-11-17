@@ -42,7 +42,7 @@ Deployment: Azure App Services, Azure SQL Database
 
 1. Clone the repository:
 
-git clone https://github.com/SamPatel02/nathani-villa.git
+git clone https://github.com/samasliws/nathani-villa.git
 
 
 2. Update appsettings.json with your database connection.
